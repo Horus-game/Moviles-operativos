@@ -3,92 +3,2781 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Móviles GLP</title>
+<meta name="theme-color" content="#0e0d0b">
+<link rel="manifest" id="pwa-manifest">
+<title>Laser Studio — Calculadora de Costos</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#e8e8e8;min-height:100vh}
-.app{display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:#1a3a5c;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-.topbar h1{font-size:16px;font-weight:600}
-.refresh-btn{background:#2a5f9e;border:none;border-radius:6px;color:white;padding:8px 14px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:600}
-.refresh-btn:active{transform:scale(0.95)}
-.ultimo{text-align:center;font-size:11px;color:#888;padding:6px;background:#f0f0f0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
-.panel{background:white;border-radius:10px;overflow:hidden;border:1px solid #e0e0e0}
-.panel-header{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
-.cnt{font-size:11px;font-weight:600;border-radius:12px;padding:2px 8px}
-.op-header{background:#dcfce7;color:#14532d}
-.op-cnt{background:#16a34a;color:white}
-.mn-header{background:#fee2e2;color:#7f1d1d}
-.mn-cnt{background:#dc2626;color:white}
-.lista{padding:8px;display:flex;flex-wrap:wrap;gap:6px}
-.movil{border-radius:6px;padding:7px 10px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
-.movil-op{background:#f0fdf4;color:#14532d;border:1px solid #bbf7d0}
-.movil-mn{background:#fef2f2;color:#7f1d1d;border:1px solid #fecaca}
-.vacio{text-align:center;color:#bbb;font-size:12px;padding:16px;font-style:italic;width:100%}
-.loading{text-align:center;color:#888;font-size:13px;padding:20px;width:100%}
-.error-msg{text-align:center;color:#dc2626;font-size:12px;padding:16px;width:100%}
-@media(max-width:420px){.grid{grid-template-columns:1fr}}
+  :root {
+    --bg: #0e0d0b;
+    --surface: #1a1814;
+    --surface2: #252219;
+    --border: #3a3428;
+    --accent: #e8c87a;
+    --accent2: #c97d4e;
+    --accent3: #7ab8a0;
+    --text: #f0ead8;
+    --text-muted: #8a7f6a;
+    --text-dim: #5a5244;
+    --danger: #c96060;
+    --success: #7ab8a0;
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, #1a1814 0%, #0e0d0b 60%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .logo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+  .logo-text p {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ─── NAV TABS ─── */
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    flex-wrap: wrap;
+  }
+  .nav-tab {
+    padding: 7px 14px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .nav-tab:hover:not(.active) {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  /* ─── LAYOUT ─── */
+  .app {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 28px 24px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ─── SECTION TITLE ─── */
+  .section-header {
+    margin-bottom: 24px;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .section-header p {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* ─── CARDS / PANELS ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title span { font-size: 18px; }
+
+  /* ─── GRID ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 900px) {
+    .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .header { flex-direction: column; gap: 14px; }
+    .nav-tabs { flex-wrap: wrap; }
+  }
+
+  /* ─── FORM FIELDS ─── */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .field-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .field-wrap .prefix,
+  .field-wrap .suffix {
+    position: absolute;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    pointer-events: none;
+    top: 50%; transform: translateY(-50%);
+  }
+  .field-wrap .prefix { left: 12px; }
+  .field-wrap .suffix { right: 12px; }
+  .field-wrap input[type=number],
+  .field-wrap input[type=text],
+  .field-wrap select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .field-wrap input::-webkit-outer-spin-button,
+  .field-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .field-wrap.has-prefix input { padding-left: 28px; }
+  .field-wrap.has-suffix input { padding-right: 32px; }
+  .field-wrap input:focus,
+  .field-wrap select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,200,122,0.1);
+  }
+  select option { background: var(--surface2); }
+
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    min-height: 70px;
+  }
+  textarea:focus { border-color: var(--accent); }
+
+  /* ─── RESULT BOXES ─── */
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+  }
+  .result-box .label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .result-box .value {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .result-box .sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .result-box.highlight {
+    background: linear-gradient(135deg, rgba(232,200,122,0.12), rgba(201,125,78,0.08));
+    border-color: var(--accent);
+  }
+  .result-box.highlight .value { font-size: 32px; }
+  .result-box.success {
+    border-color: var(--accent3);
+  }
+  .result-box.success .value { color: var(--accent3); }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .btn-primary:hover { background: #f0d490; transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+  .btn-danger:hover { background: rgba(201,96,96,0.12); }
+  .btn-success {
+    background: var(--accent3);
+    color: var(--bg);
+  }
+  .btn-success:hover { opacity: 0.9; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  /* ─── COST BREAKDOWN TABLE ─── */
+  .breakdown {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .breakdown tr { border-bottom: 1px solid rgba(58,52,40,0.5); }
+  .breakdown tr:last-child { border-bottom: none; }
+  .breakdown td {
+    padding: 9px 4px;
+    font-size: 13px;
+  }
+  .breakdown td:last-child {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+  }
+  .breakdown .bd-category {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-top: 14px;
+  }
+  .breakdown .bd-total td {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 14px;
+    padding-top: 12px;
+  }
+
+  /* ─── PROJECT CARDS ─── */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .project-card .pc-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: var(--text-dim);
+  }
+  .project-card .pc-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+  }
+  .project-card .pc-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .project-card .pc-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 12px;
+  }
+  .project-card .pc-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--accent3);
+  }
+  .project-card .pc-cost {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .project-card .pc-actions {
+    position: absolute;
+    top: 14px; right: 14px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .project-card:hover .pc-actions { opacity: 1; }
+  .pc-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 8px;
+    background: rgba(122,184,160,0.15);
+    color: var(--accent3);
+    border: 1px solid rgba(122,184,160,0.3);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .es-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  /* ─── TOOLTIP / HINT ─── */
+  .hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ─── RANGE SLIDER ─── */
+  .range-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .range-wrap input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+  .range-wrap input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+  .range-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    min-width: 44px;
+    text-align: right;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    max-width: 480px;
+    width: 100%;
+  }
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 22px;
+  }
+
+  /* ─── TAGS ─── */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: rgba(232,200,122,0.1);
+    border: 1px solid rgba(232,200,122,0.25);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ─── VENTAS TABLE ─── */
+  .ventas-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .ventas-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+  .ventas-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid rgba(58,52,40,0.4);
+    vertical-align: middle;
+  }
+  .ventas-table tr:last-child td { border-bottom: none; }
+  .ventas-table tr:hover td { background: rgba(232,200,122,0.03); }
+  .venta-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .venta-estado.pagado { background: rgba(122,184,160,0.15); color: var(--accent3); border: 1px solid rgba(122,184,160,0.3); }
+  .venta-estado.pendiente { background: rgba(232,200,122,0.12); color: var(--accent); border: 1px solid rgba(232,200,122,0.25); }
+  .venta-estado.cancelado { background: rgba(201,96,96,0.12); color: var(--danger); border: 1px solid rgba(201,96,96,0.25); }
+
+  /* ─── STOCK TABLE ─── */
+  .stock-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .stock-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+  .stock-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid rgba(58,52,40,0.4);
+    vertical-align: middle;
+  }
+  .stock-table tr:last-child td { border-bottom: none; }
+  .stock-bajo { color: var(--danger); font-weight: 700; }
+  .stock-ok { color: var(--accent3); }
+
+  /* ─── COMISION BADGES ─── */
+  .comision-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(58,52,40,0.4);
+  }
+  .comision-row:last-child { border-bottom: none; }
+  .comision-label {
+    flex: 1;
+    font-size: 13px;
+  }
+  .comision-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    min-width: 50px;
+    text-align: right;
+  }
+  .comision-precio {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    min-width: 100px;
+    text-align: right;
+  }
+
+  /* ─── SUELDO LIST ─── */
+  .sueldo-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .sueldo-item input[type=text] {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    outline: none;
+  }
+  .sueldo-item .sueldo-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ─── FOTO UPLOAD ─── */
+  .foto-upload {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .foto-upload:hover { border-color: var(--accent); background: rgba(232,200,122,0.04); }
+  .foto-upload input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .foto-upload .foto-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: none;
+  }
+  .foto-upload p {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .foto-upload .foto-icon { font-size: 32px; }
+
+  /* ─── OBJETIVO VENTAS ─── */
+  .objetivo-box {
+    background: linear-gradient(135deg, rgba(232,200,122,0.08), rgba(201,125,78,0.05));
+    border: 1px solid rgba(232,200,122,0.25);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-top: 20px;
+  }
+  .objetivo-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .objetivo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(58,52,40,0.4);
+    font-size: 13px;
+  }
+  .objetivo-row:last-child { border-bottom: none; }
+  .objetivo-row .val {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    font-size: 14px;
+  }
+
+  /* ─── CHART CONTAINER ─── */
+  .chart-wrap {
+    position: relative;
+    height: 280px;
+    width: 100%;
+  }
+
+  /* scroll bar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── PWA INSTALL ─── */
+  #pwa-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin: 10px 24px 0;
+    font-size: 13px;
+  }
+  #pwa-banner.show { display: flex; }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="topbar">
-    <h1>🚗 Móviles GLP</h1>
-    <button class="refresh-btn" onclick="cargar()">↻ Actualizar</button>
-  </div>
-  <div class="ultimo" id="ultimo">Cargando...</div>
-  <div class="grid">
-    <div class="panel">
-      <div class="panel-header op-header">
-        ✅ Operativos
-        <span class="cnt op-cnt" id="cntOp">0</span>
-      </div>
-      <div class="lista" id="listaOp"><div class="loading">Cargando...</div></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">🔆</div>
+    <div class="logo-text">
+      <h1>Laser Studio</h1>
+      <p>Calculadora de Costos &amp; Proyectos</p>
     </div>
-    <div class="panel">
-      <div class="panel-header mn-header">
-        🔧 Mantenimiento
-        <span class="cnt mn-cnt" id="cntMn">0</span>
+  </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('calc')">⚙️ Calculadora</button>
+    <button class="nav-tab" onclick="showPage('config')">🏭 Mi Taller</button>
+    <button class="nav-tab" onclick="showPage('projects')">📁 Proyectos</button>
+    <button class="nav-tab" onclick="showPage('ventas')">🧾 Ventas</button>
+    <button class="nav-tab" onclick="showPage('stock')">📦 Stock</button>
+    <button class="nav-tab" onclick="showPage('dashboard')">📈 Dashboard</button>
+    <button class="nav-tab" onclick="showPage('guide')">📖 Guía</button>
+  </nav>
+</header>
+
+<!-- PWA Install Banner -->
+<div id="pwa-banner">
+  📱 <span>¡Instalá Laser Studio como app en tu celular!</span>
+  <button class="btn btn-primary btn-sm" id="pwa-install-btn">Instalar</button>
+  <button class="btn btn-secondary btn-sm" onclick="document.getElementById('pwa-banner').style.display='none'">✕</button>
+</div>
+
+<main class="app">
+
+  <!-- ══════════════════════════════════════
+       PAGE: CALCULADORA
+  ══════════════════════════════════════ -->
+  <div id="page-calc" class="page active">
+    <div class="section-header">
+      <h2>Nueva Cotización</h2>
+      <p>Calculá el precio de venta de tu producto en base a todos los costos reales.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 400px;gap:24px;align-items:start;">
+
+      <!-- LEFT: FORMULARIO -->
+      <div>
+
+        <!-- Identificación del producto -->
+        <div class="card">
+          <div class="card-title"><span>🎨</span> Datos del Producto</div>
+          <div class="grid-2" style="margin-bottom:14px;">
+            <div class="field">
+              <label>Nombre del producto</label>
+              <div class="field-wrap">
+                <input type="text" id="p_nombre" placeholder="Ej: Cuadro árbol genealógico">
+              </div>
+            </div>
+            <div class="field">
+              <label>Material</label>
+              <div class="field-wrap">
+                <select id="p_material" onchange="calcularTodo()">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="mdf">MDF</option>
+                  <option value="madera">Madera</option>
+                  <option value="acrilico">Acrílico</option>
+                  <option value="cuero">Cuero</option>
+                  <option value="vidrio">Vidrio</option>
+                  <option value="tela">Tela / Textil</option>
+                  <option value="ceramica">Cerámica / Porcelana</option>
+                  <option value="metal">Metal / Aluminio</option>
+                  <option value="otro" id="opt-otro">Otro</option>
+                </select>
+              </div>
+              <span class="hint" style="display:flex;align-items:center;gap:6px;">
+                <button class="btn btn-secondary btn-sm" onclick="agregarMaterial()" style="padding:3px 8px;font-size:11px;">+ Agregar material</button>
+              </span>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label>Descripción / notas</label>
+            <textarea id="p_desc" placeholder="Personalizaciones, colores, cantidad de capas, etc."></textarea>
+          </div>
+
+          <!-- FOTO del producto -->
+          <div class="field">
+            <label>📷 Fotografía de referencia</label>
+            <div class="foto-upload" id="foto-drop" onclick="document.getElementById('p_foto_input').click()">
+              <input type="file" id="p_foto_input" accept="image/*" onchange="onFotoChange(event)">
+              <img id="foto-preview-img" class="foto-preview" alt="Preview">
+              <div id="foto-placeholder">
+                <div class="foto-icon">📷</div>
+                <p>Clic para subir una foto del proyecto</p>
+                <p style="font-size:11px;color:var(--text-dim);">JPG, PNG, WEBP</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="foto-remove-btn" style="display:none;position:absolute;top:8px;right:8px;z-index:2;" onclick="removeFoto(event)">✕ Quitar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIMENSIONES y MATERIALES -->
+        <div class="card">
+          <div class="card-title"><span>📐</span> Dimensiones y Costo de Materiales</div>
+
+          <div class="grid-3" style="margin-bottom:14px;">
+            <div class="field">
+              <label>Ancho (cm)</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_ancho" value="30" min="1" oninput="calcularTodo()">
+                <span class="suffix">cm</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Alto (cm)</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_alto" value="20" min="1" oninput="calcularTodo()">
+                <span class="suffix">cm</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Cantidad</label>
+              <div class="field-wrap">
+                <input type="number" id="p_qty" value="1" min="1" oninput="calcularTodo()">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label>Costo material ($ / cm²)</label>
+              <div class="field-wrap has-prefix">
+                <span class="prefix">$</span>
+                <!-- FIX: type=text para evitar conversión de coma a punto y problema con separadores de miles -->
+                <input type="text" id="p_mat_cm2" value="0.5" inputmode="decimal" oninput="calcularTodo()" placeholder="0.5">
+              </div>
+              <span class="hint">Precio por cm² del material base</span>
+            </div>
+            <div class="field">
+              <label>Costo de pintura / acabado</label>
+              <div class="field-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="p_pintura" value="0" inputmode="decimal" oninput="calcularTodo()" placeholder="0">
+              </div>
+              <span class="hint">Total de pintura para esta pieza</span>
+            </div>
+            <div class="field">
+              <label>Insumos adicionales</label>
+              <div class="field-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="p_insumos" value="0" inputmode="decimal" oninput="calcularTodo()" placeholder="0">
+              </div>
+              <span class="hint">Marcos, herrajes, embalaje, etc.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIEMPO DE TRABAJO -->
+        <div class="card">
+          <div class="card-title"><span>⏱️</span> Tiempo de Trabajo</div>
+          <div class="grid-3">
+            <div class="field">
+              <label>Horas de diseño / prep.</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_hs_diseño" value="1" step="0.25" min="0" oninput="calcularTodo()">
+                <span class="suffix">hs</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Horas de grabado (laser)</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_hs_laser" value="0.5" step="0.25" min="0" oninput="calcularTodo()">
+                <span class="suffix">hs</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Horas de pintura / post</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_hs_pintura" value="1" step="0.25" min="0" oninput="calcularTodo()">
+                <span class="suffix">hs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MARGEN DE GANANCIA -->
+        <div class="card">
+          <div class="card-title"><span>📈</span> Precio y Margen</div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Margen de ganancia</label>
+              <div class="range-wrap">
+                <input type="range" id="p_margen" min="10" max="300" value="60" step="5" oninput="syncMargen(this.value)">
+                <span class="range-val" id="margen-display">60%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>O ingresá el margen exacto</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_margen_num" value="60" min="0" max="999" oninput="syncMargenNum(this.value)">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+          </div>
+          <hr class="divider">
+          <div class="grid-2">
+            <div class="field">
+              <label>Precio mínimo (piso)</label>
+              <div class="field-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="p_precio_min" value="0" step="100" min="0" oninput="calcularTodo()">
+              </div>
+              <span class="hint">Si querés asegurar un precio mínimo</span>
+            </div>
+            <div class="field">
+              <label>Descuento / ajuste manual</label>
+              <div class="field-wrap has-suffix">
+                <input type="number" id="p_descuento" value="0" step="1" min="0" max="99" oninput="calcularTodo()">
+                <span class="suffix">%</span>
+              </div>
+              <span class="hint">Descuento sobre precio final</span>
+            </div>
+          </div>
+
+          <!-- COMISIONES -->
+          <hr class="divider">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;">💳 Con comisiones</div>
+          <div id="comisiones-list"></div>
+        </div>
+
+      </div><!-- /LEFT -->
+
+      <!-- RIGHT: RESULTADO -->
+      <div style="position:sticky;top:80px;">
+        <div class="card" style="background:linear-gradient(160deg,#1f1c14,#151309);">
+          <div class="card-title"><span>💰</span> Resultado</div>
+
+          <div id="result-main" style="margin-bottom:20px;">
+            <div class="result-box highlight" style="margin-bottom:12px;">
+              <div class="label">Precio de venta sugerido</div>
+              <div class="value" id="r_precio_venta">$0</div>
+              <div class="sub" id="r_precio_sub">por unidad</div>
+            </div>
+            <div class="grid-2" style="gap:10px;">
+              <div class="result-box">
+                <div class="label">Costo total</div>
+                <div class="value" id="r_costo_total" style="font-size:18px;">$0</div>
+              </div>
+              <div class="result-box success">
+                <div class="label">Ganancia neta</div>
+                <div class="value" id="r_ganancia" style="font-size:18px;">$0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desglose -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;">Desglose de costos</div>
+            <table class="breakdown" id="breakdown-table">
+              <tr><td colspan="2" class="bd-category">Materiales</td></tr>
+              <tr><td>Material base</td><td id="bd_mat">$0</td></tr>
+              <tr><td>Pintura / acabado</td><td id="bd_pintura">$0</td></tr>
+              <tr><td>Insumos adicionales</td><td id="bd_insumos">$0</td></tr>
+              <tr><td colspan="2" class="bd-category">Mano de obra</td></tr>
+              <tr><td>Diseño / preparación</td><td id="bd_mdo_dis">$0</td></tr>
+              <tr><td>Operación laser</td><td id="bd_mdo_las">$0</td></tr>
+              <tr><td>Pintura / post</td><td id="bd_mdo_pin">$0</td></tr>
+              <tr><td colspan="2" class="bd-category">Costos fijos prorrateados</td></tr>
+              <tr><td>Electricidad (laser)</td><td id="bd_elec">$0</td></tr>
+              <tr><td>Amortización máquina</td><td id="bd_amorti">$0</td></tr>
+              <tr><td>Gastos generales</td><td id="bd_gastos">$0</td></tr>
+              <tr class="bd-total">
+                <td>COSTO TOTAL</td>
+                <td id="bd_total">$0</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="guardarProyecto()" style="flex:1;">💾 Guardar proyecto</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportarPDF()">📄 PDF</button>
+            <button class="btn btn-secondary btn-sm" onclick="limpiarForm()">🗑 Limpiar</button>
+          </div>
+
+          <div id="edit-indicator" style="display:none;margin-top:10px;">
+            <div class="tag">✏️ Editando: <span id="edit-name"></span></div>
+            <button class="btn btn-secondary btn-sm" style="margin-top:8px;width:100%;" onclick="cancelarEdicion()">Cancelar edición</button>
+          </div>
+        </div>
+      </div><!-- /RIGHT -->
+
+    </div>
+  </div><!-- /page-calc -->
+
+
+  <!-- ══════════════════════════════════════
+       PAGE: CONFIG (Mi Taller)
+  ══════════════════════════════════════ -->
+  <div id="page-config" class="page">
+    <div class="section-header">
+      <h2>Mi Taller</h2>
+      <p>Configurá los costos fijos de tu taller. Se usan automáticamente en cada cotización.</p>
+    </div>
+
+    <!-- MÁQUINA -->
+    <div class="card">
+      <div class="card-title"><span>⚡</span> Máquina Laser</div>
+      <div class="grid-4">
+        <div class="field">
+          <label>Costo de la máquina</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_costo_maquina" value="500000" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Vida útil estimada</label>
+          <div class="field-wrap has-suffix">
+            <input type="number" id="cfg_vida_util" value="5" min="1" max="30" oninput="guardarConfig();calcularTodo()">
+            <span class="suffix">años</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Consumo eléctrico</label>
+          <div class="field-wrap has-suffix">
+            <input type="number" id="cfg_consumo_w" value="300" min="1" oninput="guardarConfig();calcularTodo()">
+            <span class="suffix">W</span>
+          </div>
+          <span class="hint">Potencia de la máquina en Watts</span>
+        </div>
+        <div class="field">
+          <label>Tarifa eléctrica</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_kwh" value="90" step="0.01" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+          <span class="hint">$ por kWh en tu zona</span>
+        </div>
       </div>
-      <div class="lista" id="listaMn"><div class="loading">Cargando...</div></div>
+      <hr class="divider">
+      <div class="grid-4">
+        <div class="field">
+          <label>Mantenimiento anual</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_mantenimiento" value="30000" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+          <span class="hint">Repuestos, servicio técnico</span>
+        </div>
+        <div class="field">
+          <label>Horas de uso mensual</label>
+          <div class="field-wrap has-suffix">
+            <input type="number" id="cfg_hs_mes" value="80" min="1" oninput="guardarConfig();calcularTodo()">
+            <span class="suffix">hs</span>
+          </div>
+          <span class="hint">Promedio real de uso</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COSTOS FIJOS DEL NEGOCIO -->
+    <div class="card">
+      <div class="card-title"><span>🏠</span> Costos Fijos Mensuales del Negocio</div>
+      <div class="grid-4">
+        <div class="field">
+          <label>Alquiler / renta</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_alquiler" value="0" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Publicidad / redes</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_publicidad" value="10000" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Otros gastos fijos</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_otros" value="20000" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+          <span class="hint">Internet, envíos, contaduría, etc.</span>
+        </div>
+        <div class="field">
+          <label>Horas laborales por mes</label>
+          <div class="field-wrap has-suffix">
+            <input type="number" id="cfg_hs_laborales" value="160" min="1" oninput="guardarConfig();calcularTodo()">
+            <span class="suffix">hs</span>
+          </div>
+          <span class="hint">Para calcular tu valor hora</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="grid-2">
+        <div class="field">
+          <label>Productos que vendés por mes</label>
+          <div class="field-wrap">
+            <input type="number" id="cfg_productos_mes" value="20" min="1" oninput="guardarConfig();calcularTodo()">
+          </div>
+          <span class="hint">Estimado de unidades vendidas</span>
+        </div>
+        <div class="field">
+          <label>Tarifa de mano de obra ($/hora)</label>
+          <div class="field-wrap has-prefix">
+            <span class="prefix">$</span>
+            <input type="number" id="cfg_tarifa_hora" value="0" min="0" oninput="guardarConfig();calcularTodo()">
+          </div>
+          <span class="hint">0 = se calcula del sueldo mensual</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUELDOS -->
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;"><span>💵</span> Sueldos</div>
+        <button class="btn btn-secondary btn-sm" onclick="agregarSueldo()">+ Agregar persona</button>
+      </div>
+      <p style="color:var(--text-muted);font-size:12px;margin-bottom:14px;">El total de sueldos se suma a los costos fijos del negocio para calcular el valor/hora.</p>
+      <div id="sueldos-list"></div>
+      <hr class="divider">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:var(--text-muted);">Total sueldos mensuales:</span>
+        <span style="font-family:'DM Mono',monospace;font-size:18px;color:var(--accent);" id="total-sueldos">$0</span>
+      </div>
+    </div>
+
+    <!-- OBJETIVO DE VENTAS -->
+    <div class="objetivo-box">
+      <h3>🎯 Objetivo de Ventas para cubrir costos</h3>
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="result-box">
+          <div class="label">Total gastos mensuales</div>
+          <div class="value" id="obj_gastos_total" style="font-size:18px;">$0</div>
+        </div>
+        <div class="result-box success">
+          <div class="label">Ventas necesarias / mes</div>
+          <div class="value" id="obj_ventas_necesarias" style="font-size:18px;">0</div>
+          <div class="sub">productos promedio</div>
+        </div>
+        <div class="result-box">
+          <div class="label">Ingreso necesario / mes</div>
+          <div class="value" id="obj_ingreso_necesario" style="font-size:18px;">$0</div>
+        </div>
+      </div>
+      <div id="objetivo-detalle">
+        <div class="objetivo-row">
+          <span>Días de trabajo necesarios (8hs/día)</span>
+          <span class="val" id="obj_dias">0</span>
+        </div>
+        <div class="objetivo-row">
+          <span>Horas necesarias de producción / mes</span>
+          <span class="val" id="obj_hs_prod">0 hs</span>
+        </div>
+        <div class="objetivo-row">
+          <span>Precio promedio de venta (de tus proyectos)</span>
+          <span class="val" id="obj_precio_prom">$0</span>
+        </div>
+        <div class="objetivo-row">
+          <span>Costo promedio por producto (de tus proyectos)</span>
+          <span class="val" id="obj_costo_prom">$0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMEN DE CONFIGURACIÓN -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title"><span>📊</span> Resumen de tu estructura de costos</div>
+      <div class="grid-4">
+        <div class="result-box">
+          <div class="label">Tu valor / hora</div>
+          <div class="value" id="cfg_r_valor_hora" style="font-size:18px;">$0</div>
+        </div>
+        <div class="result-box">
+          <div class="label">Costo laser / hora</div>
+          <div class="value" id="cfg_r_laser_hora" style="font-size:18px;">$0</div>
+        </div>
+        <div class="result-box">
+          <div class="label">Gastos fijos / producto</div>
+          <div class="value" id="cfg_r_fijos_prod" style="font-size:18px;">$0</div>
+        </div>
+        <div class="result-box">
+          <div class="label">Total mensual fijo</div>
+          <div class="value" id="cfg_r_total_mensual" style="font-size:18px;">$0</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-config -->
+
+
+  <!-- ══════════════════════════════════════
+       PAGE: PROYECTOS
+  ══════════════════════════════════════ -->
+  <div id="page-projects" class="page">
+    <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h2>Mis Proyectos</h2>
+        <p>Todos tus trabajos guardados. Podés editarlos, duplicarlos o eliminarlos.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarTodo()">⬇️ Exportar todo</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()">⬆️ Importar</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarTodo(event)">
+        <button class="btn btn-primary" onclick="showPage('calc')">＋ Nueva cotización</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-4" style="margin-bottom:20px;" id="proj-stats">
+      <div class="result-box"><div class="label">Total proyectos</div><div class="value" id="stat-total" style="font-size:22px;">0</div></div>
+      <div class="result-box"><div class="label">Ingresos estimados</div><div class="value" id="stat-ingresos" style="font-size:18px;">$0</div></div>
+      <div class="result-box success"><div class="label">Ganancia estimada</div><div class="value" id="stat-ganancia" style="font-size:18px;">$0</div></div>
+      <div class="result-box"><div class="label">Precio promedio</div><div class="value" id="stat-promedio" style="font-size:18px;">$0</div></div>
+    </div>
+
+    <!-- Filtro/búsqueda -->
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+      <div class="field-wrap" style="flex:1;min-width:200px;">
+        <input type="text" id="search-projects" placeholder="🔍  Buscar por nombre o material..." oninput="renderProjects()" style="width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Nunito,sans-serif;font-size:13px;outline:none;">
+      </div>
+      <select id="sort-projects" onchange="renderProjects()" style="padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Nunito,sans-serif;font-size:13px;outline:none;">
+        <option value="fecha-desc">Más recientes primero</option>
+        <option value="fecha-asc">Más antiguos primero</option>
+        <option value="precio-desc">Mayor precio</option>
+        <option value="precio-asc">Menor precio</option>
+        <option value="nombre">Por nombre</option>
+      </select>
+    </div>
+
+    <div class="project-grid" id="projects-container">
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="es-icon">📁</div>
+        <h3>Todavía no tenés proyectos</h3>
+        <p>Crea tu primera cotización desde la Calculadora</p>
+      </div>
+    </div>
+  </div><!-- /page-projects -->
+
+
+  <!-- ══════════════════════════════════════
+       PAGE: VENTAS
+  ══════════════════════════════════════ -->
+  <div id="page-ventas" class="page">
+    <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h2>🧾 Ventas Realizadas</h2>
+        <p>Historial de clientes y ventas. Llevá el control de tus ingresos reales.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModalVenta()">＋ Nueva venta</button>
+    </div>
+
+    <!-- Stats ventas -->
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="result-box"><div class="label">Total ventas</div><div class="value" id="vstat-total" style="font-size:22px;">0</div></div>
+      <div class="result-box success"><div class="label">Ingresos reales</div><div class="value" id="vstat-ingresos" style="font-size:18px;">$0</div></div>
+      <div class="result-box"><div class="label">Pendiente cobro</div><div class="value" id="vstat-pendiente" style="font-size:18px;">$0</div></div>
+      <div class="result-box"><div class="label">Clientes únicos</div><div class="value" id="vstat-clientes" style="font-size:22px;">0</div></div>
+    </div>
+
+    <!-- Filtro ventas -->
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+      <input type="text" id="search-ventas" placeholder="🔍 Buscar cliente o producto..." oninput="renderVentas()" style="flex:1;min-width:180px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Nunito,sans-serif;font-size:13px;outline:none;">
+      <select id="filter-venta-estado" onchange="renderVentas()" style="padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Nunito,sans-serif;font-size:13px;outline:none;">
+        <option value="">Todos los estados</option>
+        <option value="pagado">Pagado</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="ventas-table-wrap">
+        <div class="empty-state"><div class="es-icon">🧾</div><h3>Sin ventas registradas</h3><p>Agregá tu primera venta con el botón de arriba</p></div>
+      </div>
+    </div>
+  </div><!-- /page-ventas -->
+
+
+  <!-- ══════════════════════════════════════
+       PAGE: STOCK
+  ══════════════════════════════════════ -->
+  <div id="page-stock" class="page">
+    <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h2>📦 Control de Stock</h2>
+        <p>Gestioná los materiales disponibles en tu taller.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModalStock()">＋ Agregar material</button>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="stock-table-wrap">
+        <div class="empty-state"><div class="es-icon">📦</div><h3>Sin materiales cargados</h3><p>Agregá tus materiales para controlar el stock</p></div>
+      </div>
+    </div>
+  </div><!-- /page-stock -->
+
+
+  <!-- ══════════════════════════════════════
+       PAGE: DASHBOARD
+  ══════════════════════════════════════ -->
+  <div id="page-dashboard" class="page">
+    <div class="section-header">
+      <h2>📈 Dashboard</h2>
+      <p>Resumen visual de tu negocio.</p>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="result-box highlight"><div class="label">Ingreso real (ventas)</div><div class="value" id="dash-ingresos" style="font-size:20px;">$0</div></div>
+      <div class="result-box success"><div class="label">Ganancia neta</div><div class="value" id="dash-ganancia" style="font-size:20px;">$0</div></div>
+      <div class="result-box"><div class="label">Proyectos activos</div><div class="value" id="dash-proyectos" style="font-size:26px;">0</div></div>
+      <div class="result-box"><div class="label">Ventas este mes</div><div class="value" id="dash-ventas-mes" style="font-size:26px;">0</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>💰</span> Ingresos por mes</div>
+        <div class="chart-wrap"><canvas id="chart-ingresos"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🥇</span> Top productos por precio</div>
+        <div class="chart-wrap"><canvas id="chart-productos"></canvas></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>📊</span> Ventas por estado</div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="chart-estados"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🧱</span> Materiales más usados</div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="chart-materiales"></canvas></div>
+      </div>
+    </div>
+  </div><!-- /page-dashboard -->
+
+
+  <!-- ══════════════════════════════════════
+       PAGE: GUÍA
+  ══════════════════════════════════════ -->
+  <div id="page-guide" class="page">
+    <div class="section-header">
+      <h2>Guía de uso</h2>
+      <p>Todo lo que necesitás saber para ponerle precio justo a tu trabajo.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <div class="card-title"><span>1️⃣</span> Configurá tu taller primero</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8;">
+          Antes de cotizar, andá a <strong style="color:var(--accent)">Mi Taller</strong> y cargá:
+          <br>• El costo y vida útil de tu laser
+          <br>• Tu sueldo o retiro mensual deseado
+          <br>• Todos los gastos fijos del negocio
+          <br>• Cuántos productos vendés por mes
+          <br><br>Esto permite que la calculadora distribuya automáticamente los costos fijos en cada producto.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>2️⃣</span> Cotizá cada producto</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8;">
+          En la <strong style="color:var(--accent)">Calculadora</strong> ingresá:
+          <br>• Dimensiones del material
+          <br>• Costo por cm² del material
+          <br>• Pintura, marcos, y otros insumos
+          <br>• Horas de trabajo separadas por tipo
+          <br>• El margen de ganancia que querés
+          <br><br>El precio de venta se calcula en tiempo real.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>3️⃣</span> Guardá tus proyectos</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8;">
+          Hacé clic en <strong style="color:var(--accent)">💾 Guardar proyecto</strong> para guardarlo.
+          <br><br>Desde <strong style="color:var(--accent)">Proyectos</strong> podés:
+          <br>• Ver todos tus trabajos
+          <br>• Editarlos
+          <br>• Duplicar trabajos similares
+          <br>• Exportar a PDF o JSON
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>⚡</span> Cómo calcular el costo por cm²</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8;">
+          Ejemplo: plancha de MDF de 60×40 cm (2400 cm²) que te costó $3.000.<br>
+          <br>
+          <strong style="color:var(--accent)">$3.000 ÷ 2400 cm² = $1,25 por cm²</strong>
+          <br><br>
+          Usás ese valor en el campo "Costo material ($/cm²)". Así el costo se adapta automáticamente al tamaño de cada pieza.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>💡</span> Comisiones (MercadoPago, etc.)</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8;">
+          En la sección de <strong style="color:var(--accent)">Comisiones</strong> de la calculadora podés ver el precio con distintas comisiones de medios de pago:
+          <br>• MercadoPago (6%)
+          <br>• Transferencia (0%)
+          <br>• Tarjeta de crédito (aprox. 4%)
+          <br><br>El precio se calcula automáticamente para cada método.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>💾</span> Backup de tus datos</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8;">
+          Todos los datos se guardan en el navegador (localStorage). Para hacer backup:
+          <br><br>
+          1. Andá a <strong style="color:var(--accent)">Proyectos</strong><br>
+          2. Hacé clic en <strong style="color:var(--accent)">⬇️ Exportar todo</strong><br>
+          3. Guardá el archivo .json en un lugar seguro<br>
+          <br>
+          <strong style="color:var(--danger)">Atención:</strong> si limpiás el historial del navegador, se borran los datos.
+        </p>
+      </div>
+    </div>
+  </div><!-- /page-guide -->
+
+</main>
+
+<!-- MODAL: Confirmar eliminación -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <h3>🗑 ¿Eliminar proyecto?</h3>
+    <p style="color:var(--text-muted);font-size:13px;">Esta acción no se puede deshacer.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-delete')">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-delete-btn">Eliminar</button>
     </div>
   </div>
 </div>
 
+<!-- MODAL: Agregar material al selector -->
+<div class="modal-overlay" id="modal-material">
+  <div class="modal">
+    <h3>➕ Agregar nuevo material</h3>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Nombre del material</label>
+      <div class="field-wrap">
+        <input type="text" id="nuevo-material-nombre" placeholder="Ej: Foam EVA, Corcho, Resina...">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-material')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarAgregarMaterial()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva venta -->
+<div class="modal-overlay" id="modal-venta">
+  <div class="modal" style="max-width:560px;">
+    <h3>🧾 Registrar Venta</h3>
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Nombre del cliente</label>
+        <div class="field-wrap">
+          <input type="text" id="v_cliente" placeholder="Nombre / Instagram / tel.">
+        </div>
+      </div>
+      <div class="field">
+        <label>Producto vendido</label>
+        <div class="field-wrap">
+          <input type="text" id="v_producto" placeholder="Ej: Cuadro árbol genealógico">
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Precio cobrado</label>
+        <div class="field-wrap has-prefix">
+          <span class="prefix">$</span>
+          <input type="number" id="v_precio" value="0" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Fecha</label>
+        <div class="field-wrap">
+          <input type="date" id="v_fecha" style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;width:100%;">
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Medio de pago</label>
+        <div class="field-wrap">
+          <select id="v_medio_pago" style="width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;">
+            <option value="transferencia">Transferencia</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="mercadopago">MercadoPago</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Estado</label>
+        <div class="field-wrap">
+          <select id="v_estado" style="width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;">
+            <option value="pagado">Pagado</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Notas</label>
+      <textarea id="v_notas" placeholder="Observaciones, personalizaciones, dirección de envío..." style="min-height:56px;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-venta')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarVenta()">💾 Guardar venta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Stock item -->
+<div class="modal-overlay" id="modal-stock">
+  <div class="modal">
+    <h3>📦 Material / Stock</h3>
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Nombre del material</label>
+        <div class="field-wrap">
+          <input type="text" id="st_nombre" placeholder="Ej: MDF 3mm 60x40">
+        </div>
+      </div>
+      <div class="field">
+        <label>Unidad</label>
+        <div class="field-wrap">
+          <input type="text" id="st_unidad" placeholder="planchas, metros, kg...">
+        </div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Stock actual</label>
+        <div class="field-wrap">
+          <input type="number" id="st_stock" value="0" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Stock mínimo</label>
+        <div class="field-wrap">
+          <input type="number" id="st_minimo" value="2" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>Costo unitario</label>
+        <div class="field-wrap has-prefix">
+          <span class="prefix">$</span>
+          <input type="number" id="st_costo" value="0" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-stock')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarStockItem()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">Guardado!</span>
+</div>
+
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzOzl75ttNyHlTQ4g5SmKSFVQYp-5VLdvrQ_odn8DEb1QxN_2sgpnWeelghAV0YXsh1cg/exec';
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let editingId = null;
+let deleteTargetId = null;
+let editingVentaId = null;
+let editingStockId = null;
+let currentFotoBase64 = null;
 
-async function cargar(){
-  document.getElementById('ultimo').textContent = 'Actualizando...';
-  try {
-    const r = await fetch(API);
-    const d = await r.json();
-    const op = d.operativos || [];
-    const mn = d.mantenimiento || [];
+const CFG_KEY = 'laser_config';
+const PROJ_KEY = 'laser_projects';
+const VENTAS_KEY = 'laser_ventas';
+const STOCK_KEY = 'laser_stock';
+const SUELDOS_KEY = 'laser_sueldos';
+const MATERIALS_KEY = 'laser_custom_materials';
 
-    document.getElementById('cntOp').textContent = op.length;
-    document.getElementById('cntMn').textContent = mn.length;
+// ═══════════════════════════════════════════
+// PARSE FLOAT SAFE (fix para coma/punto)
+// ═══════════════════════════════════════════
+function parseSafe(val) {
+  if (val === undefined || val === null) return 0;
+  // Normalize: remove thousand separators and replace comma with dot
+  const str = String(val).replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(str);
+  return isNaN(n) ? 0 : n;
+}
 
-    document.getElementById('listaOp').innerHTML = op.length
-      ? op.map(m=>`<div class="movil movil-op">🚗 ${m}</div>`).join('')
-      : '<div class="vacio">Sin móviles registrados</div>';
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = { calc:0, config:1, projects:2, ventas:3, stock:4, dashboard:5, guide:6 };
+  document.querySelectorAll('.nav-tab')[tabs[id]].classList.add('active');
+  if (id === 'projects') renderProjects();
+  if (id === 'config') { updateConfigSummary(); renderSueldos(); }
+  if (id === 'ventas') renderVentas();
+  if (id === 'stock') renderStock();
+  if (id === 'dashboard') renderDashboard();
+}
 
-    document.getElementById('listaMn').innerHTML = mn.length
-      ? mn.map(m=>`<div class="movil movil-mn">🔧 ${m}</div>`).join('')
-      : '<div class="vacio">Sin móviles en mantenimiento</div>';
-
-    const ahora = new Date();
-    document.getElementById('ultimo').textContent = `Última actualización: ${ahora.toLocaleTimeString('es-AR')}`;
-  } catch(e) {
-    document.getElementById('listaOp').innerHTML = '<div class="error-msg">Error al cargar datos</div>';
-    document.getElementById('listaMn').innerHTML = '<div class="error-msg">Error al cargar datos</div>';
-    document.getElementById('ultimo').textContent = 'Error de conexión';
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+function getConfig() {
+  const saved = localStorage.getItem(CFG_KEY);
+  if (saved) {
+    const cfg = JSON.parse(saved);
+    Object.keys(cfg).forEach(k => {
+      const el = document.getElementById(k);
+      if (el) el.value = cfg[k];
+    });
   }
 }
 
-cargar();
-setInterval(cargar, 60000);
+function guardarConfig() {
+  const ids = [
+    'cfg_costo_maquina','cfg_vida_util','cfg_consumo_w','cfg_kwh',
+    'cfg_mantenimiento','cfg_hs_mes','cfg_alquiler',
+    'cfg_publicidad','cfg_otros','cfg_productos_mes','cfg_tarifa_hora',
+    'cfg_hs_laborales'
+  ];
+  const cfg = {};
+  ids.forEach(id => { cfg[id] = parseFloat(document.getElementById(id).value)||0; });
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  updateConfigSummary();
+  renderObjetivo();
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  // Use parseSafe for text inputs (fix for mat_cm2 etc.)
+  return parseSafe(el.value);
+}
+
+function getTotalSueldos() {
+  const sueldos = getSueldos();
+  return sueldos.reduce((s, x) => s + (parseFloat(x.monto)||0), 0);
+}
+
+function getCostosBase() {
+  const costoMaquina = getVal('cfg_costo_maquina');
+  const vidaUtil = getVal('cfg_vida_util') * 12;
+  const consumoW = getVal('cfg_consumo_w');
+  const kwh = getVal('cfg_kwh');
+  const mantenimiento = getVal('cfg_mantenimiento') / 12;
+  const hsMes = getVal('cfg_hs_mes');
+  const alquiler = getVal('cfg_alquiler');
+  const sueldoTotal = getTotalSueldos();
+  const publicidad = getVal('cfg_publicidad');
+  const otros = getVal('cfg_otros');
+  const prodMes = getVal('cfg_productos_mes') || 1;
+  const hsLaborales = getVal('cfg_hs_laborales') || 160;
+  const tarifaHoraManual = getVal('cfg_tarifa_hora');
+
+  const valorHora = tarifaHoraManual > 0 ? tarifaHoraManual : (sueldoTotal / hsLaborales);
+  const amortizacion = vidaUtil > 0 ? (costoMaquina / vidaUtil / hsMes) : 0;
+  const elecHora = (consumoW / 1000) * kwh;
+  const mantHora = hsMes > 0 ? (mantenimiento / hsMes) : 0;
+  const costoLaserHora = elecHora + amortizacion + mantHora;
+  const gastosFijosMes = alquiler + publicidad + otros;
+  const gastoFijoProd = gastosFijosMes / prodMes;
+
+  return { valorHora, costoLaserHora, gastoFijoProd, amortizacion, elecHora, mantHora,
+           gastosFijosMes, sueldo: sueldoTotal, prodMes };
+}
+
+function updateConfigSummary() {
+  const b = getCostosBase();
+  const totalMensual = getTotalSueldos() + getVal('cfg_alquiler') +
+    getVal('cfg_publicidad') + getVal('cfg_otros') +
+    (getVal('cfg_mantenimiento')/12);
+
+  setText('cfg_r_valor_hora', fmt(b.valorHora));
+  setText('cfg_r_laser_hora', fmt(b.costoLaserHora));
+  setText('cfg_r_fijos_prod', fmt(b.gastoFijoProd));
+  setText('cfg_r_total_mensual', fmt(totalMensual));
+  setText('total-sueldos', fmt(getTotalSueldos()));
+}
+
+// ─── SUELDOS ───
+function getSueldos() {
+  return JSON.parse(localStorage.getItem(SUELDOS_KEY) || '[]');
+}
+function saveSueldos(arr) {
+  localStorage.setItem(SUELDOS_KEY, JSON.stringify(arr));
+}
+
+function renderSueldos() {
+  const sueldos = getSueldos();
+  const container = document.getElementById('sueldos-list');
+  if (sueldos.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim);font-size:12px;padding:8px 0;">No hay sueldos cargados. Agregá una persona.</p>';
+    setText('total-sueldos', fmt(0));
+    return;
+  }
+  container.innerHTML = sueldos.map((s, i) => `
+    <div class="sueldo-item">
+      <input type="text" value="${escHtml(s.nombre)}" placeholder="Nombre / rol" onchange="updateSueldo(${i},'nombre',this.value)">
+      <div class="field-wrap has-prefix" style="width:180px;">
+        <span class="prefix">$</span>
+        <input type="number" value="${s.monto}" min="0" style="width:100%;padding:8px 8px 8px 24px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;" onchange="updateSueldo(${i},'monto',this.value)">
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="eliminarSueldo(${i})">✕</button>
+    </div>
+  `).join('');
+  setText('total-sueldos', fmt(getTotalSueldos()));
+}
+
+function agregarSueldo() {
+  const sueldos = getSueldos();
+  sueldos.push({ nombre: 'Persona ' + (sueldos.length + 1), monto: 200000 });
+  saveSueldos(sueldos);
+  renderSueldos();
+  updateConfigSummary();
+  calcularTodo();
+}
+
+function updateSueldo(i, campo, val) {
+  const sueldos = getSueldos();
+  if (campo === 'monto') sueldos[i].monto = parseFloat(val)||0;
+  else sueldos[i].nombre = val;
+  saveSueldos(sueldos);
+  updateConfigSummary();
+  calcularTodo();
+}
+
+function eliminarSueldo(i) {
+  const sueldos = getSueldos();
+  sueldos.splice(i, 1);
+  saveSueldos(sueldos);
+  renderSueldos();
+  updateConfigSummary();
+  calcularTodo();
+}
+
+// ─── OBJETIVO VENTAS ───
+function renderObjetivo() {
+  const b = getCostosBase();
+  const totalSueldos = getTotalSueldos();
+  const totalFijo = totalSueldos + getVal('cfg_alquiler') + getVal('cfg_publicidad') +
+    getVal('cfg_otros') + getVal('cfg_mantenimiento') / 12;
+
+  const projects = getProjects();
+  const promPrecio = projects.length ? projects.reduce((s,p)=>s+p.precioVenta,0)/projects.length : 0;
+  const promCosto = projects.length ? projects.reduce((s,p)=>s+p.costoTotal,0)/projects.length : 0;
+  const promHs = projects.length ? projects.reduce((s,p)=>s+(p.hsDis||0)+(p.hsLas||0)+(p.hsPin||0),0)/projects.length : 2;
+
+  const ventasNecesarias = promPrecio > 0 ? Math.ceil(totalFijo / (promPrecio - promCosto)) : 0;
+  const ingresoNecesario = ventasNecesarias * promPrecio;
+  const hsNecesarias = ventasNecesarias * promHs;
+  const diasNecesarios = Math.ceil(hsNecesarias / 8);
+
+  setText('obj_gastos_total', fmt(totalFijo));
+  setText('obj_ventas_necesarias', ventasNecesarias || '-');
+  setText('obj_ingreso_necesario', fmt(ingresoNecesario));
+  setText('obj_dias', diasNecesarios || '-');
+  setText('obj_hs_prod', (hsNecesarias || 0).toFixed(1) + ' hs');
+  setText('obj_precio_prom', fmt(promPrecio));
+  setText('obj_costo_prom', fmt(promCosto));
+}
+
+// ═══════════════════════════════════════════
+// CALCULADORA
+// ═══════════════════════════════════════════
+function syncMargen(v) {
+  document.getElementById('p_margen_num').value = v;
+  document.getElementById('margen-display').textContent = v + '%';
+  calcularTodo();
+}
+function syncMargenNum(v) {
+  v = Math.min(999, Math.max(0, parseFloat(v)||0));
+  const slider = document.getElementById('p_margen');
+  slider.value = Math.min(300, v);
+  document.getElementById('margen-display').textContent = v + '%';
+  calcularTodo();
+}
+
+function calcularTodo() {
+  const b = getCostosBase();
+
+  const ancho = getVal('p_ancho');
+  const alto = getVal('p_alto');
+  const qty = getVal('p_qty') || 1;
+  const area = ancho * alto * qty;
+
+  // FIX: usar parseSafe para los campos de texto
+  const matCm2 = parseSafe(document.getElementById('p_mat_cm2').value);
+  const pintura = parseSafe(document.getElementById('p_pintura').value);
+  const insumos = parseSafe(document.getElementById('p_insumos').value);
+
+  const hsDis = getVal('p_hs_diseño');
+  const hsLas = getVal('p_hs_laser');
+  const hsPin = getVal('p_hs_pintura');
+
+  const margen = parseFloat(document.getElementById('p_margen_num').value)||0;
+  const precioMin = getVal('p_precio_min');
+  const descuento = getVal('p_descuento');
+
+  // COSTOS
+  const cMat = area * matCm2;
+  const cPintura = pintura;
+  const cInsumos = insumos;
+  const cMdoDis = hsDis * b.valorHora;
+  const cMdoLas = hsLas * b.valorHora;
+  const cMdoPin = hsPin * b.valorHora;
+  const cElec = hsLas * b.elecHora;
+  const cAmorti = hsLas * (b.amortizacion + b.mantHora);
+  const cGastos = b.gastoFijoProd;
+
+  const costoTotal = cMat + cPintura + cInsumos + cMdoDis + cMdoLas + cMdoPin + cElec + cAmorti + cGastos;
+
+  let precioVenta = costoTotal * (1 + margen / 100);
+  if (precioVenta < precioMin) precioVenta = precioMin;
+  if (descuento > 0) precioVenta = precioVenta * (1 - descuento / 100);
+
+  const ganancia = precioVenta - costoTotal;
+
+  // Display
+  setText('r_precio_venta', fmt(precioVenta));
+  setText('r_costo_total', fmt(costoTotal));
+  setText('r_ganancia', fmt(ganancia));
+  setText('r_precio_sub', qty > 1 ? `por unidad · ${qty} unidades` : 'por unidad');
+
+  setText('bd_mat', fmt(cMat));
+  setText('bd_pintura', fmt(cPintura));
+  setText('bd_insumos', fmt(cInsumos));
+  setText('bd_mdo_dis', fmt(cMdoDis));
+  setText('bd_mdo_las', fmt(cMdoLas));
+  setText('bd_mdo_pin', fmt(cMdoPin));
+  setText('bd_elec', fmt(cElec));
+  setText('bd_amorti', fmt(cAmorti));
+  setText('bd_gastos', fmt(cGastos));
+  setText('bd_total', fmt(costoTotal));
+
+  // Comisiones
+  renderComisiones(precioVenta);
+}
+
+// ─── COMISIONES ───
+const COMISIONES = [
+  { nombre: 'Transferencia', pct: 0, emoji: '🏦' },
+  { nombre: 'Efectivo', pct: 0, emoji: '💵' },
+  { nombre: 'MercadoPago', pct: 6.1, emoji: '💙' },
+  { nombre: 'Tarjeta débito', pct: 1.5, emoji: '💳' },
+  { nombre: 'Tarjeta crédito (1 cuota)', pct: 3.67, emoji: '💳' },
+  { nombre: 'Tarjeta crédito (3 cuotas)', pct: 7.83, emoji: '💳' },
+];
+
+function renderComisiones(precioBase) {
+  const container = document.getElementById('comisiones-list');
+  container.innerHTML = COMISIONES.map(c => {
+    const precioFinal = precioBase * (1 + c.pct / 100);
+    return `<div class="comision-row">
+      <span class="comision-label">${c.emoji} ${c.nombre}</span>
+      <span class="comision-pct">${c.pct > 0 ? '+' + c.pct + '%' : 'Sin comisión'}</span>
+      <span class="comision-precio">${fmt(precioFinal)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── FOTO ───
+function onFotoChange(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentFotoBase64 = e.target.result;
+    showFotoPreview(currentFotoBase64);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showFotoPreview(src) {
+  const img = document.getElementById('foto-preview-img');
+  const placeholder = document.getElementById('foto-placeholder');
+  const removeBtn = document.getElementById('foto-remove-btn');
+  img.src = src;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  removeBtn.style.display = 'flex';
+}
+
+function removeFoto(e) {
+  e.stopPropagation();
+  currentFotoBase64 = null;
+  const img = document.getElementById('foto-preview-img');
+  const placeholder = document.getElementById('foto-placeholder');
+  const removeBtn = document.getElementById('foto-remove-btn');
+  img.src = '';
+  img.style.display = 'none';
+  placeholder.style.display = 'flex';
+  removeBtn.style.display = 'none';
+  document.getElementById('p_foto_input').value = '';
+}
+
+// ─── MATERIALES PERSONALIZADOS ───
+function getCustomMaterials() {
+  return JSON.parse(localStorage.getItem(MATERIALS_KEY) || '[]');
+}
+function saveCustomMaterials(arr) {
+  localStorage.setItem(MATERIALS_KEY, JSON.stringify(arr));
+}
+function agregarMaterial() {
+  document.getElementById('nuevo-material-nombre').value = '';
+  document.getElementById('modal-material').classList.add('open');
+}
+function confirmarAgregarMaterial() {
+  const nombre = document.getElementById('nuevo-material-nombre').value.trim();
+  if (!nombre) return toast('⚠️ Ingresá un nombre de material', true);
+  const mats = getCustomMaterials();
+  const val = nombre.toLowerCase().replace(/\s+/g, '_');
+  mats.push({ val, nombre });
+  saveCustomMaterials(mats);
+  // Add to select
+  const select = document.getElementById('p_material');
+  const opt = document.createElement('option');
+  opt.value = val;
+  opt.textContent = nombre;
+  select.insertBefore(opt, document.getElementById('opt-otro'));
+  select.value = val;
+  closeModal('modal-material');
+  toast('✅ Material agregado: ' + nombre);
+}
+function loadCustomMaterials() {
+  const mats = getCustomMaterials();
+  const select = document.getElementById('p_material');
+  mats.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.val;
+    opt.textContent = m.nombre;
+    select.insertBefore(opt, document.getElementById('opt-otro'));
+  });
+}
+
+// ═══════════════════════════════════════════
+// PROYECTOS
+// ═══════════════════════════════════════════
+function getProjects() {
+  return JSON.parse(localStorage.getItem(PROJ_KEY) || '[]');
+}
+function saveProjects(arr) {
+  localStorage.setItem(PROJ_KEY, JSON.stringify(arr));
+}
+
+function snapshotCalc() {
+  const b = getCostosBase();
+  const ancho = getVal('p_ancho');
+  const alto = getVal('p_alto');
+  const qty = getVal('p_qty') || 1;
+  const area = ancho * alto * qty;
+  const matCm2 = parseSafe(document.getElementById('p_mat_cm2').value);
+  const pintura = parseSafe(document.getElementById('p_pintura').value);
+  const insumos = parseSafe(document.getElementById('p_insumos').value);
+  const hsDis = getVal('p_hs_diseño');
+  const hsLas = getVal('p_hs_laser');
+  const hsPin = getVal('p_hs_pintura');
+  const margen = parseFloat(document.getElementById('p_margen_num').value)||0;
+  const precioMin = getVal('p_precio_min');
+  const descuento = getVal('p_descuento');
+  const cMat = area * matCm2;
+  const cMdoDis = hsDis * b.valorHora;
+  const cMdoLas = hsLas * b.valorHora;
+  const cMdoPin = hsPin * b.valorHora;
+  const cElec = hsLas * b.elecHora;
+  const cAmorti = hsLas * (b.amortizacion + b.mantHora);
+  const cGastos = b.gastoFijoProd;
+  const costoTotal = cMat + pintura + insumos + cMdoDis + cMdoLas + cMdoPin + cElec + cAmorti + cGastos;
+  let precioVenta = costoTotal * (1 + margen / 100);
+  if (precioVenta < precioMin) precioVenta = precioMin;
+  if (descuento > 0) precioVenta = precioVenta * (1 - descuento / 100);
+  return {
+    nombre: document.getElementById('p_nombre').value || 'Sin nombre',
+    material: document.getElementById('p_material').value,
+    descripcion: document.getElementById('p_desc').value,
+    foto: currentFotoBase64,
+    ancho, alto, qty, matCm2, pintura, insumos, hsDis, hsLas, hsPin,
+    margen, precioMin, descuento,
+    costoTotal, precioVenta,
+    ganancia: precioVenta - costoTotal
+  };
+}
+
+function guardarProyecto() {
+  const data = snapshotCalc();
+  if (!data.nombre.trim() || data.nombre === 'Sin nombre') {
+    document.getElementById('p_nombre').focus();
+    toast('⚠️ Poné un nombre al producto', true);
+    return;
+  }
+  const projects = getProjects();
+  if (editingId !== null) {
+    const idx = projects.findIndex(p => p.id === editingId);
+    if (idx > -1) {
+      projects[idx] = { ...data, id: editingId, fechaMod: new Date().toISOString(), fechaCreacion: projects[idx].fechaCreacion };
+    }
+    editingId = null;
+    document.getElementById('edit-indicator').style.display = 'none';
+    toast('✅ Proyecto actualizado!');
+  } else {
+    const newProj = { ...data, id: Date.now(), fechaCreacion: new Date().toISOString(), fechaMod: new Date().toISOString() };
+    projects.push(newProj);
+    toast('💾 Proyecto guardado!');
+  }
+  saveProjects(projects);
+  renderObjetivo();
+}
+
+function loadProjectToCalc(id) {
+  const projects = getProjects();
+  const p = projects.find(pr => pr.id === id);
+  if (!p) return;
+  editingId = id;
+  document.getElementById('p_nombre').value = p.nombre;
+  document.getElementById('p_material').value = p.material || '';
+  document.getElementById('p_desc').value = p.descripcion || '';
+  document.getElementById('p_ancho').value = p.ancho;
+  document.getElementById('p_alto').value = p.alto;
+  document.getElementById('p_qty').value = p.qty;
+  document.getElementById('p_mat_cm2').value = p.matCm2;
+  document.getElementById('p_pintura').value = p.pintura;
+  document.getElementById('p_insumos').value = p.insumos;
+  document.getElementById('p_hs_diseño').value = p.hsDis;
+  document.getElementById('p_hs_laser').value = p.hsLas;
+  document.getElementById('p_hs_pintura').value = p.hsPin;
+  document.getElementById('p_margen_num').value = p.margen;
+  document.getElementById('p_margen').value = Math.min(300, p.margen);
+  document.getElementById('margen-display').textContent = p.margen + '%';
+  document.getElementById('p_precio_min').value = p.precioMin || 0;
+  document.getElementById('p_descuento').value = p.descuento || 0;
+  // Foto
+  if (p.foto) {
+    currentFotoBase64 = p.foto;
+    showFotoPreview(p.foto);
+  } else {
+    removeFoto({ stopPropagation: ()=>{} });
+  }
+  document.getElementById('edit-indicator').style.display = 'block';
+  document.getElementById('edit-name').textContent = p.nombre;
+  calcularTodo();
+  showPage('calc');
+  toast('✏️ Editando: ' + p.nombre);
+}
+
+function duplicarProyecto(id) {
+  const projects = getProjects();
+  const p = projects.find(pr => pr.id === id);
+  if (!p) return;
+  const copy = { ...p, id: Date.now(), nombre: p.nombre + ' (copia)', fechaCreacion: new Date().toISOString(), fechaMod: new Date().toISOString() };
+  projects.push(copy);
+  saveProjects(projects);
+  renderProjects();
+  toast('📋 Proyecto duplicado!');
+}
+
+function confirmarEliminar(id) {
+  deleteTargetId = id;
+  document.getElementById('modal-delete').classList.add('open');
+}
+
+document.getElementById('confirm-delete-btn').onclick = function() {
+  if (deleteTargetId === null) return;
+  const projects = getProjects().filter(p => p.id !== deleteTargetId);
+  saveProjects(projects);
+  deleteTargetId = null;
+  closeModal('modal-delete');
+  renderProjects();
+  toast('🗑 Proyecto eliminado');
+};
+
+function cancelarEdicion() {
+  editingId = null;
+  document.getElementById('edit-indicator').style.display = 'none';
+  limpiarForm();
+}
+
+function limpiarForm() {
+  document.getElementById('p_nombre').value = '';
+  document.getElementById('p_material').value = '';
+  document.getElementById('p_desc').value = '';
+  document.getElementById('p_ancho').value = 30;
+  document.getElementById('p_alto').value = 20;
+  document.getElementById('p_qty').value = 1;
+  document.getElementById('p_mat_cm2').value = 0.5;
+  document.getElementById('p_pintura').value = 0;
+  document.getElementById('p_insumos').value = 0;
+  document.getElementById('p_hs_diseño').value = 1;
+  document.getElementById('p_hs_laser').value = 0.5;
+  document.getElementById('p_hs_pintura').value = 1;
+  document.getElementById('p_margen_num').value = 60;
+  document.getElementById('p_margen').value = 60;
+  document.getElementById('margen-display').textContent = '60%';
+  document.getElementById('p_precio_min').value = 0;
+  document.getElementById('p_descuento').value = 0;
+  removeFoto({ stopPropagation: ()=>{} });
+  calcularTodo();
+}
+
+function renderProjects() {
+  let projects = getProjects();
+  const search = (document.getElementById('search-projects').value || '').toLowerCase();
+  const sort = document.getElementById('sort-projects').value;
+
+  if (search) {
+    projects = projects.filter(p =>
+      p.nombre.toLowerCase().includes(search) ||
+      (p.material||'').toLowerCase().includes(search) ||
+      (p.descripcion||'').toLowerCase().includes(search)
+    );
+  }
+
+  projects.sort((a,b) => {
+    if (sort === 'fecha-desc') return new Date(b.fechaMod) - new Date(a.fechaMod);
+    if (sort === 'fecha-asc') return new Date(a.fechaMod) - new Date(b.fechaMod);
+    if (sort === 'precio-desc') return b.precioVenta - a.precioVenta;
+    if (sort === 'precio-asc') return a.precioVenta - b.precioVenta;
+    if (sort === 'nombre') return a.nombre.localeCompare(b.nombre);
+    return 0;
+  });
+
+  const all = getProjects();
+  const totalIngresos = all.reduce((s,p)=>s+p.precioVenta,0);
+  const totalGanancia = all.reduce((s,p)=>s+p.ganancia,0);
+  const avgPrecio = all.length ? totalIngresos / all.length : 0;
+  setText('stat-total', all.length);
+  setText('stat-ingresos', fmt(totalIngresos));
+  setText('stat-ganancia', fmt(totalGanancia));
+  setText('stat-promedio', fmt(avgPrecio));
+
+  const container = document.getElementById('projects-container');
+  if (projects.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="es-icon">🔍</div><h3>Sin resultados</h3><p>Probá con otro término de búsqueda</p></div>`;
+    return;
+  }
+
+  const materials = { mdf:'MDF', madera:'Madera', acrilico:'Acrílico', cuero:'Cuero', vidrio:'Vidrio', tela:'Textil', ceramica:'Cerámica', metal:'Metal', otro:'Otro', '':'General' };
+
+  container.innerHTML = projects.map(p => {
+    const fecha = new Date(p.fechaMod).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
+    const margenReal = p.costoTotal > 0 ? Math.round((p.ganancia / p.costoTotal)*100) : 0;
+    const fotoHTML = p.foto
+      ? `<div class="pc-img"><img src="${p.foto}" alt=""></div>`
+      : `<div class="pc-img" style="background:var(--surface2);border-radius:10px;margin-bottom:12px;">🖼️</div>`;
+    return `
+      <div class="project-card" onclick="loadProjectToCalc(${p.id})">
+        <div class="pc-actions">
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();exportarProyectoPDF(${p.id})" title="Exportar PDF">📄</button>
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();duplicarProyecto(${p.id})" title="Duplicar">📋</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();confirmarEliminar(${p.id})" title="Eliminar">🗑</button>
+        </div>
+        ${fotoHTML}
+        <div class="pc-name">${escHtml(p.nombre)}</div>
+        <div class="pc-meta">${materials[p.material]||'General'} · ${p.ancho}×${p.alto} cm · ${fecha}</div>
+        <div class="pc-price">${fmt(p.precioVenta)}</div>
+        <div class="pc-cost">Costo: ${fmt(p.costoTotal)} · Ganancia: ${fmt(p.ganancia)}</div>
+        <div class="pc-badge">+${margenReal}% margen</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// VENTAS
+// ═══════════════════════════════════════════
+function getVentas() {
+  return JSON.parse(localStorage.getItem(VENTAS_KEY) || '[]');
+}
+function saveVentas(arr) {
+  localStorage.setItem(VENTAS_KEY, JSON.stringify(arr));
+}
+
+function openModalVenta() {
+  editingVentaId = null;
+  document.getElementById('v_cliente').value = '';
+  document.getElementById('v_producto').value = '';
+  document.getElementById('v_precio').value = 0;
+  document.getElementById('v_fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('v_medio_pago').value = 'transferencia';
+  document.getElementById('v_estado').value = 'pagado';
+  document.getElementById('v_notas').value = '';
+  document.getElementById('modal-venta').classList.add('open');
+}
+
+function guardarVenta() {
+  const cliente = document.getElementById('v_cliente').value.trim();
+  const producto = document.getElementById('v_producto').value.trim();
+  const precio = parseFloat(document.getElementById('v_precio').value)||0;
+  if (!cliente || !producto) return toast('⚠️ Completá cliente y producto', true);
+  const venta = {
+    cliente, producto, precio,
+    fecha: document.getElementById('v_fecha').value,
+    medioPago: document.getElementById('v_medio_pago').value,
+    estado: document.getElementById('v_estado').value,
+    notas: document.getElementById('v_notas').value,
+  };
+  const ventas = getVentas();
+  if (editingVentaId !== null) {
+    const idx = ventas.findIndex(v => v.id === editingVentaId);
+    if (idx > -1) ventas[idx] = { ...venta, id: editingVentaId };
+    editingVentaId = null;
+    toast('✅ Venta actualizada!');
+  } else {
+    ventas.push({ ...venta, id: Date.now() });
+    toast('💾 Venta registrada!');
+  }
+  saveVentas(ventas);
+  closeModal('modal-venta');
+  renderVentas();
+}
+
+function renderVentas() {
+  let ventas = getVentas();
+  const search = (document.getElementById('search-ventas').value || '').toLowerCase();
+  const estadoFiltro = document.getElementById('filter-venta-estado').value;
+
+  if (search) ventas = ventas.filter(v =>
+    v.cliente.toLowerCase().includes(search) ||
+    v.producto.toLowerCase().includes(search)
+  );
+  if (estadoFiltro) ventas = ventas.filter(v => v.estado === estadoFiltro);
+
+  ventas.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+  const all = getVentas();
+  const totalIngresos = all.filter(v=>v.estado==='pagado').reduce((s,v)=>s+v.precio,0);
+  const totalPendiente = all.filter(v=>v.estado==='pendiente').reduce((s,v)=>s+v.precio,0);
+  const clientesUnicos = new Set(all.map(v=>v.cliente.toLowerCase())).size;
+  setText('vstat-total', all.length);
+  setText('vstat-ingresos', fmt(totalIngresos));
+  setText('vstat-pendiente', fmt(totalPendiente));
+  setText('vstat-clientes', clientesUnicos);
+
+  const wrap = document.getElementById('ventas-table-wrap');
+  if (ventas.length === 0) {
+    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">🧾</div><h3>Sin ventas</h3><p>Ajustá los filtros o agregá una nueva venta</p></div>';
+    return;
+  }
+
+  const medioEmoji = { transferencia:'🏦', efectivo:'💵', mercadopago:'💙', tarjeta:'💳', otro:'📱' };
+
+  wrap.innerHTML = `<table class="ventas-table">
+    <thead><tr>
+      <th>Fecha</th><th>Cliente</th><th>Producto</th><th>Medio</th><th>Precio</th><th>Estado</th><th>Acciones</th>
+    </tr></thead>
+    <tbody>
+    ${ventas.map(v => {
+      const fecha = new Date(v.fecha+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
+      return `<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);">${fecha}</td>
+        <td><strong style="color:var(--text);">${escHtml(v.cliente)}</strong>${v.notas ? `<br><span style="font-size:11px;color:var(--text-dim);">${escHtml(v.notas)}</span>` : ''}</td>
+        <td style="color:var(--accent);">${escHtml(v.producto)}</td>
+        <td>${medioEmoji[v.medioPago]||'💳'} ${v.medioPago}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:15px;color:var(--accent3);">${fmt(v.precio)}</td>
+        <td><span class="venta-estado ${v.estado}">${v.estado}</span></td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="editarVenta(${v.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarVenta(${v.id})">🗑</button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function editarVenta(id) {
+  const ventas = getVentas();
+  const v = ventas.find(x => x.id === id);
+  if (!v) return;
+  editingVentaId = id;
+  document.getElementById('v_cliente').value = v.cliente;
+  document.getElementById('v_producto').value = v.producto;
+  document.getElementById('v_precio').value = v.precio;
+  document.getElementById('v_fecha').value = v.fecha;
+  document.getElementById('v_medio_pago').value = v.medioPago;
+  document.getElementById('v_estado').value = v.estado;
+  document.getElementById('v_notas').value = v.notas || '';
+  document.getElementById('modal-venta').classList.add('open');
+}
+
+function eliminarVenta(id) {
+  const ventas = getVentas().filter(v => v.id !== id);
+  saveVentas(ventas);
+  renderVentas();
+  toast('🗑 Venta eliminada');
+}
+
+// ═══════════════════════════════════════════
+// STOCK
+// ═══════════════════════════════════════════
+function getStock() {
+  return JSON.parse(localStorage.getItem(STOCK_KEY) || '[]');
+}
+function saveStock(arr) {
+  localStorage.setItem(STOCK_KEY, JSON.stringify(arr));
+}
+
+function openModalStock(id) {
+  editingStockId = id || null;
+  if (id) {
+    const s = getStock().find(x => x.id === id);
+    if (s) {
+      document.getElementById('st_nombre').value = s.nombre;
+      document.getElementById('st_unidad').value = s.unidad;
+      document.getElementById('st_stock').value = s.stock;
+      document.getElementById('st_minimo').value = s.minimo;
+      document.getElementById('st_costo').value = s.costo;
+    }
+  } else {
+    document.getElementById('st_nombre').value = '';
+    document.getElementById('st_unidad').value = 'planchas';
+    document.getElementById('st_stock').value = 0;
+    document.getElementById('st_minimo').value = 2;
+    document.getElementById('st_costo').value = 0;
+  }
+  document.getElementById('modal-stock').classList.add('open');
+}
+
+function guardarStockItem() {
+  const nombre = document.getElementById('st_nombre').value.trim();
+  if (!nombre) return toast('⚠️ Ingresá un nombre de material', true);
+  const item = {
+    nombre,
+    unidad: document.getElementById('st_unidad').value,
+    stock: parseFloat(document.getElementById('st_stock').value)||0,
+    minimo: parseFloat(document.getElementById('st_minimo').value)||0,
+    costo: parseFloat(document.getElementById('st_costo').value)||0,
+  };
+  const stock = getStock();
+  if (editingStockId !== null) {
+    const idx = stock.findIndex(s => s.id === editingStockId);
+    if (idx > -1) stock[idx] = { ...item, id: editingStockId };
+    editingStockId = null;
+    toast('✅ Material actualizado!');
+  } else {
+    stock.push({ ...item, id: Date.now() });
+    toast('💾 Material agregado!');
+  }
+  saveStock(stock);
+  closeModal('modal-stock');
+  renderStock();
+}
+
+function renderStock() {
+  const stock = getStock();
+  const wrap = document.getElementById('stock-table-wrap');
+  if (stock.length === 0) {
+    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📦</div><h3>Sin materiales cargados</h3><p>Agregá tus materiales para controlar el stock</p></div>';
+    return;
+  }
+  wrap.innerHTML = `<table class="stock-table">
+    <thead><tr>
+      <th>Material</th><th>Unidad</th><th>Stock</th><th>Mínimo</th><th>Costo unit.</th><th>Estado</th><th>Acciones</th>
+    </tr></thead>
+    <tbody>
+    ${stock.map(s => {
+      const bajo = s.stock <= s.minimo;
+      return `<tr>
+        <td><strong>${escHtml(s.nombre)}</strong></td>
+        <td style="color:var(--text-muted);">${escHtml(s.unidad)}</td>
+        <td class="${bajo ? 'stock-bajo' : 'stock-ok'}">${s.stock}</td>
+        <td style="color:var(--text-dim);">${s.minimo}</td>
+        <td style="font-family:'DM Mono',monospace;">${fmt(s.costo)}</td>
+        <td>${bajo ? '<span style="color:var(--danger);font-size:12px;font-weight:700;">⚠️ BAJO</span>' : '<span style="color:var(--accent3);font-size:12px;">✅ OK</span>'}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="openModalStock(${s.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarStock(${s.id})">🗑</button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function eliminarStock(id) {
+  const stock = getStock().filter(s => s.id !== id);
+  saveStock(stock);
+  renderStock();
+  toast('🗑 Material eliminado');
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+let dashCharts = {};
+
+function destroyChart(key) {
+  if (dashCharts[key]) { dashCharts[key].destroy(); delete dashCharts[key]; }
+}
+
+const CHART_DEFAULTS = {
+  plugins: { legend: { labels: { color: '#8a7f6a', font: { family: 'DM Mono' } } } },
+  scales: {
+    x: { ticks: { color: '#8a7f6a' }, grid: { color: 'rgba(58,52,40,0.4)' } },
+    y: { ticks: { color: '#8a7f6a' }, grid: { color: 'rgba(58,52,40,0.4)' } }
+  }
+};
+
+function renderDashboard() {
+  const ventas = getVentas();
+  const projects = getProjects();
+
+  const ingresoReal = ventas.filter(v=>v.estado==='pagado').reduce((s,v)=>s+v.precio,0);
+  const gananciaEst = projects.reduce((s,p)=>s+p.ganancia,0);
+  const mesActual = new Date().toISOString().slice(0,7);
+  const ventasMes = ventas.filter(v=>v.fecha&&v.fecha.slice(0,7)===mesActual).length;
+
+  setText('dash-ingresos', fmt(ingresoReal));
+  setText('dash-ganancia', fmt(gananciaEst));
+  setText('dash-proyectos', projects.length);
+  setText('dash-ventas-mes', ventasMes);
+
+  // ── Ingresos por mes ──
+  const porMes = {};
+  ventas.filter(v=>v.estado==='pagado').forEach(v => {
+    if (!v.fecha) return;
+    const m = v.fecha.slice(0,7);
+    porMes[m] = (porMes[m]||0) + v.precio;
+  });
+  const meses = Object.keys(porMes).sort().slice(-6);
+  const mesesLabels = meses.map(m => { const [y,mo] = m.split('-'); return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(mo)-1]+' '+y.slice(2); });
+
+  destroyChart('ingresos');
+  dashCharts['ingresos'] = new Chart(document.getElementById('chart-ingresos'), {
+    type: 'bar',
+    data: {
+      labels: mesesLabels.length ? mesesLabels : ['Sin datos'],
+      datasets: [{ label: 'Ingresos ($)', data: meses.map(m=>porMes[m]||0), backgroundColor: 'rgba(232,200,122,0.6)', borderColor: '#e8c87a', borderWidth: 1, borderRadius: 6 }]
+    },
+    options: { ...CHART_DEFAULTS, responsive: true, maintainAspectRatio: false, plugins: { ...CHART_DEFAULTS.plugins } }
+  });
+
+  // ── Top productos ──
+  const top = [...projects].sort((a,b)=>b.precioVenta-a.precioVenta).slice(0,7);
+  destroyChart('productos');
+  dashCharts['productos'] = new Chart(document.getElementById('chart-productos'), {
+    type: 'bar',
+    data: {
+      labels: top.map(p=>p.nombre.length>18?p.nombre.slice(0,18)+'…':p.nombre),
+      datasets: [{ label: 'Precio venta', data: top.map(p=>p.precioVenta), backgroundColor: 'rgba(122,184,160,0.6)', borderColor: '#7ab8a0', borderWidth: 1, borderRadius: 6 }]
+    },
+    options: { ...CHART_DEFAULTS, indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+  });
+
+  // ── Estados de ventas ──
+  const estados = { pagado: 0, pendiente: 0, cancelado: 0 };
+  ventas.forEach(v => { if (estados[v.estado] !== undefined) estados[v.estado]++; });
+  destroyChart('estados');
+  dashCharts['estados'] = new Chart(document.getElementById('chart-estados'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Pagado', 'Pendiente', 'Cancelado'],
+      datasets: [{ data: [estados.pagado, estados.pendiente, estados.cancelado], backgroundColor: ['rgba(122,184,160,0.7)', 'rgba(232,200,122,0.7)', 'rgba(201,96,96,0.7)'], borderColor: ['#7ab8a0','#e8c87a','#c96060'], borderWidth: 1 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#8a7f6a', font: { family: 'DM Mono' } } } } }
+  });
+
+  // ── Materiales más usados ──
+  const matCount = {};
+  projects.forEach(p => { const m = p.material || 'otro'; matCount[m] = (matCount[m]||0)+1; });
+  const matLabels = { mdf:'MDF', madera:'Madera', acrilico:'Acrílico', cuero:'Cuero', vidrio:'Vidrio', tela:'Textil', ceramica:'Cerámica', metal:'Metal', otro:'Otro' };
+  const matKeys = Object.keys(matCount);
+  destroyChart('materiales');
+  dashCharts['materiales'] = new Chart(document.getElementById('chart-materiales'), {
+    type: 'pie',
+    data: {
+      labels: matKeys.map(k=>matLabels[k]||k),
+      datasets: [{ data: matKeys.map(k=>matCount[k]), backgroundColor: ['rgba(232,200,122,0.7)','rgba(201,125,78,0.7)','rgba(122,184,160,0.7)','rgba(201,96,96,0.7)','rgba(150,120,200,0.7)','rgba(80,160,220,0.7)','rgba(220,180,80,0.7)','rgba(100,200,150,0.7)'], borderWidth: 1 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#8a7f6a', font: { family: 'DM Mono' }, boxWidth: 12 } } } }
+  });
+}
+
+// ═══════════════════════════════════════════
+// EXPORT PDF
+// ═══════════════════════════════════════════
+function exportarPDF() {
+  const nombre = document.getElementById('p_nombre').value || 'Cotización';
+  const precio = document.getElementById('r_precio_venta').textContent;
+  const costo = document.getElementById('r_costo_total').textContent;
+  const ganancia = document.getElementById('r_ganancia').textContent;
+  const material = document.getElementById('p_material');
+  const matNombre = material.options[material.selectedIndex]?.text || '';
+  const desc = document.getElementById('p_desc').value;
+  const ancho = document.getElementById('p_ancho').value;
+  const alto = document.getElementById('p_alto').value;
+  const qty = document.getElementById('p_qty').value;
+  const fotoSrc = currentFotoBase64 || null;
+  const fotoTag = fotoSrc ? `<img src="${fotoSrc}" style="max-width:240px;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #ccc;margin-bottom:12px;">` : '';
+
+  const rows = [
+    ['Material base', document.getElementById('bd_mat').textContent],
+    ['Pintura / acabado', document.getElementById('bd_pintura').textContent],
+    ['Insumos adicionales', document.getElementById('bd_insumos').textContent],
+    ['Diseño / preparación', document.getElementById('bd_mdo_dis').textContent],
+    ['Operación laser', document.getElementById('bd_mdo_las').textContent],
+    ['Pintura / post', document.getElementById('bd_mdo_pin').textContent],
+    ['Electricidad', document.getElementById('bd_elec').textContent],
+    ['Amortización máquina', document.getElementById('bd_amorti').textContent],
+    ['Gastos generales', document.getElementById('bd_gastos').textContent],
+  ].map(([k,v]) => `<tr><td>${k}</td><td style="text-align:right;font-weight:600;">${v}</td></tr>`).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Cotización — ${nombre}</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 680px; margin: 0 auto; padding: 40px; color: #222; }
+    h1 { color: #b8922a; font-size: 28px; margin-bottom: 4px; }
+    .sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+    .price-box { background: #fdf8ee; border: 2px solid #e8c87a; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px; }
+    .price-box .p { font-size: 38px; font-weight: 700; color: #b8922a; }
+    .price-box .sub2 { font-size: 13px; color: #888; }
+    .grid { display: flex; gap: 16px; margin-bottom: 24px; }
+    .box { flex: 1; background: #f8f6f0; border-radius: 8px; padding: 14px; text-align: center; }
+    .box .l { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
+    .box .v { font-size: 20px; font-weight: 700; color: #444; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    td { padding: 8px 4px; border-bottom: 1px solid #eee; }
+    td:last-child { text-align: right; }
+    .total-row td { font-weight: 700; font-size: 15px; padding-top: 12px; color: #b8922a; border-top: 2px solid #e8c87a; border-bottom: none; }
+    .info { margin-bottom: 20px; font-size: 13px; }
+    .info strong { color: #b8922a; }
+    @media print { body { padding: 20px; } }
+  </style></head><body>
+  <h1>Laser Studio</h1>
+  <div class="sub">Cotización · ${new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})}</div>
+  ${fotoTag}
+  <div class="info">
+    <strong>Producto:</strong> ${nombre}<br>
+    ${matNombre ? `<strong>Material:</strong> ${matNombre}<br>` : ''}
+    <strong>Dimensiones:</strong> ${ancho} × ${alto} cm · Cantidad: ${qty}<br>
+    ${desc ? `<strong>Notas:</strong> ${desc}` : ''}
+  </div>
+  <div class="price-box">
+    <div class="l" style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Precio de venta sugerido</div>
+    <div class="p">${precio}</div>
+    <div class="sub2">por unidad</div>
+  </div>
+  <div class="grid">
+    <div class="box"><div class="l">Costo total</div><div class="v">${costo}</div></div>
+    <div class="box"><div class="l">Ganancia</div><div class="v" style="color:#3a8a6a;">${ganancia}</div></div>
+  </div>
+  <strong style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#888;">Desglose de costos</strong>
+  <table style="margin-top:10px;">${rows}
+    <tr class="total-row"><td>COSTO TOTAL</td><td>${costo}</td></tr>
+  </table>
+  <div style="margin-top:32px;font-size:11px;color:#bbb;text-align:center;">Generado por Laser Studio — ${new Date().toLocaleString('es-AR')}</div>
+  <script>window.onload=()=>window.print();<\/script>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+function exportarProyectoPDF(id) {
+  const p = getProjects().find(pr => pr.id === id);
+  if (!p) return;
+  // Load project to form then export
+  loadProjectToCalc(id);
+  setTimeout(exportarPDF, 300);
+}
+
+// ═══════════════════════════════════════════
+// EXPORT TODO
+// ═══════════════════════════════════════════
+function exportarTodo() {
+  const data = {
+    version: '2.0',
+    exportado: new Date().toISOString(),
+    config: JSON.parse(localStorage.getItem(CFG_KEY)||'{}'),
+    projects: getProjects(),
+    ventas: getVentas(),
+    stock: getStock(),
+    sueldos: getSueldos()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'laser-studio-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('⬇️ Backup exportado!');
+}
+
+function importarTodo(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.projects) {
+        const existing = getProjects();
+        const merged = [...existing];
+        data.projects.forEach(p => {
+          if (!merged.find(x => x.id === p.id)) merged.push(p);
+        });
+        saveProjects(merged);
+      }
+      if (data.ventas) {
+        const ev = getVentas();
+        const mv = [...ev];
+        data.ventas.forEach(v => { if (!mv.find(x=>x.id===v.id)) mv.push(v); });
+        saveVentas(mv);
+      }
+      if (data.stock) {
+        const es = getStock();
+        const ms = [...es];
+        data.stock.forEach(s => { if (!ms.find(x=>x.id===s.id)) ms.push(s); });
+        saveStock(ms);
+      }
+      if (data.sueldos) saveSueldos(data.sueldos);
+      if (data.config) {
+        localStorage.setItem(CFG_KEY, JSON.stringify(data.config));
+        getConfig();
+      }
+      renderProjects();
+      toast('⬆️ Importación completada!');
+    } catch(err) {
+      toast('❌ Error al importar el archivo', true);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function fmt(n) {
+  if (isNaN(n)) return '$0';
+  return '$' + Math.round(n).toLocaleString('es-AR');
+}
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+let toastTimeout;
+function toast(msg, error=false) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  m.textContent = msg;
+  t.style.background = error ? 'var(--danger)' : 'var(--accent)';
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════
+// PWA
+// ═══════════════════════════════════════════
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('pwa-banner').classList.add('show');
+});
+document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('pwa-banner').style.display='none';
+  if (outcome === 'accepted') toast('✅ ¡App instalada!');
+});
+
+// Crear manifest dinámicamente para PWA
+const manifest = {
+  name: 'Laser Studio',
+  short_name: 'LaserStudio',
+  description: 'Calculadora de costos para taller laser',
+  start_url: './',
+  display: 'standalone',
+  background_color: '#0e0d0b',
+  theme_color: '#e8c87a',
+  icons: [{ src: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔆</text></svg>', sizes: '192x192', type: 'image/svg+xml' }]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  getConfig();
+  loadCustomMaterials();
+  calcularTodo();
+  updateConfigSummary();
+  renderSueldos();
+  renderObjetivo();
+
+  // Init sueldos con el sueldo por defecto si no hay nada guardado
+  if (getSueldos().length === 0) {
+    saveSueldos([{ nombre: 'Mi sueldo', monto: 200000 }]);
+    renderSueldos();
+    updateConfigSummary();
+  }
+});
 </script>
 </body>
 </html>
